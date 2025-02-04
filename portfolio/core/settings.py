@@ -25,6 +25,10 @@ environ.Env.read_env()
 # 設定專案的基礎目錄
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# 確保 logs 目錄存在
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
 # 快速啟動開發設置 - 不適合用於生產環境
 # 請參閱 https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -32,9 +36,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xct7dy-6#350uqp7d7^a*akddiqxfpc9n9005dk%syg%g^13(!'
 
 # 安全警告：在生產環境中請將 debug 設置為 False！
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['zoe-portfolio.sunflowx.com', 'www.zoe-portfolio.sunflowx.com']
 
 
 # 應用程式定義
@@ -175,24 +179,37 @@ DEFAULT_FROM_EMAIL = "Zoe Note"
 EMAIL_HOST_USER = os.getenv("ZOE_EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("ZOE_EMAIL_HOST_PASSWORD")
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://zoe-portfolio.sunflowx.com',  # 添加您的網域名稱
+]
+
+CSRF_COOKIE_DOMAIN = None
+
 # 日誌設置
 LOGGING = {
-    'version': 1, # 日誌配置版本
-    'disable_existing_loggers': False, # 是否禁用現有的記錄器
+    'version': 1,
+    'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG', # 日誌級別
-            'class': 'logging.handlers.RotatingFileHandler', # 日誌輸出到文件
-            'filename': os.path.join(BASE_DIR, 'debug.log'), # 日誌文件
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR / 'django.log',
             'maxBytes': 1024 * 1024 * 5,  # 5 MB
-            'backupCount': 5, # 保留5個日誌文件
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'], # 將日誌輸出到文件
-            'level': 'DEBUG', # 設置日誌級別
-            'propagate': True, # 是否傳遞到父記錄器
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
     },
 }
